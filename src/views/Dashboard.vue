@@ -54,10 +54,7 @@ function drawScatter(data: Journal[]) {
     let padding = { left: 0, top: 0, right: 0, bottom: 0 };
     let g = svg
         .append('g')
-        .attr(
-            'transform',
-            'translate(' + padding.left + ',' + padding.top + ')',
-        );
+        .attr('transform', 'translate(' + padding.left + ',' + padding.top + ')');
     // 绘制直方图
     g.selectAll('.bar')
         .data(data)
