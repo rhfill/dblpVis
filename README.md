@@ -7,8 +7,14 @@ This template should help get you started developing with Vue 3 in Vite.
 使用 node 20.9.0
 
 ```bash
+# 全局安装yarn启动器，这玩意并行下载，比npm块
+npm install -g yarn
+# 安装依赖，替代npm install
 yarn
 yarn dev
+# 使用prettier格式化代码，统一代码风格
+yarn format
+
 ```
 
 ## Recommended IDE Setup
