@@ -1,5 +1,6 @@
-// Index,Journals,Web of Science Documents,Cites,Cites/Paper,Top Papers
+// Type for "Journals - Top paper - CS.csv"
 
+// Index,Journals,Web of Science Documents,Cites,Cites/Paper,Top Papers
 export type Journal = {
   index: number;
   name: string;
