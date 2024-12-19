@@ -42,7 +42,8 @@ body, #app {
 .RouterView-content {
     flex-grow: 1;
     width: 100%;
-    
+    overflow: hidden;
+
     padding: 1rem;
     border-radius: 1rem;
 
@@ -50,6 +51,7 @@ body, #app {
     margin-right: 1rem;
     margin-bottom: 1rem;
 
+    display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;

@@ -1,79 +1,94 @@
 研究热点发现：使用热力图或词云来展示研究主题的频率和热度。
 
 <template>
-    <div >
-        <svg ref="svgRef" :style="{ width: '50vw', height: '90vh' }">
-            <g class="force" :transform="`translate(${margin.left + 200}, ${margin.top + 300})`"></g>
-            <g class="main" :transform="`translate(${margin.left}, ${margin.top})`"></g>
-        </svg>
+    <div>
+        <svg ref="svgRef" width="1400" height="700"></svg>
     </div>
 </template>
 
 <script lang="ts" setup>
 import { onMounted, ref } from "vue";
 import * as d3 from "d3";
-import { transformJournal, type Journal } from "@/components/dataTransform.ts";
+import * as d3cloud from 'd3-cloud'
+import { Article200, transformArticle200 } from "./dataTransform";
 
+const cloud = d3cloud.default;
 const svgRef = ref();
-const margin = { left: 30, right: 10, top: 10, bottom: 20 };
+
+function wordCloud(data: { text: string, size: number }[]) {
+    const svg = d3.select(svgRef.value);
+
+    const width = +svg.attr("width");
+    const height = +svg.attr("height");
+
+    var layout = cloud().size([width, height])
+        .words(data) // 数据绑定
+        .padding(5) // 单词间距
+        .rotate(function () { return ~~(Math.random() * 2) * 30; }) // 旋转角度
+        .font("Arial")
+        .fontSize(function (d) { return d.size; }) // 字体大小
+        .on("end", draw);
+    layout.start();
+
+    function draw(words) {
+        var cloud = svg.append("g")
+            .attr("transform", "translate(" + width / 2 + "," + height / 2 + ")");
+
+        cloud.selectAll("text")
+            .data(words)
+            .enter().append("text")
+            .style("font-size", function (d) { return d.size + "px"; })
+            .style("font-family", "Arial")
+            .style("fill", function (d, i) { return d3.schemeTableau10[i % 10] })
+            .attr("text-anchor", "middle")
+            .attr("transform", function (d) {
+                return "translate(" + [d.x, d.y] + ")rotate(" + d.rotate + ")";
+            })
+            .text(function (d) { return d.text; });
+    }
+
+    return draw;
+}
+
+function processData2Weight(data: Article200[]) {
+    const segmenterFr = new Intl.Segmenter('en', { granularity: 'word', localeMatcher: 'best fit' });
+    let weight = new Map<string, number>();
+    data.forEach((d) => {
+        const iterator = segmenterFr.segment(d.title);
+        for (let { segment } of iterator) {
+            segment = segment.toLowerCase()
+            if (segment.length < 2) {
+                continue;
+            }
+            if (weight.has(segment)) {
+                weight.set(segment, weight.get(segment) + 1);
+            } else {
+                weight.set(segment, 1);
+            }
+        }
+    });
+    return weight;
+}
+
+const getRidOf = [
+    "the", 'of', 'with', 'and', 'or', 'in'
+]
 
 onMounted(() => {
-    d3.text("Journals - Top paper - CS.csv").then((d) => {
-        const data = transformJournal(d3.csvParse(d));
-        console.log(data);
-        drawScatter(data);
+    d3.csv("Article200.csv").then((_data) => {
+        const data = transformArticle200(_data.slice(0, 1000));
+        const realData = processData2Weight(data);
+
+        const realCloudData = Array.from(realData).map(([text, size]) => ({ text, size }));
+        const okFine = realCloudData.filter(d => {
+            if (getRidOf.includes(d.text)) {
+                return false;
+            }
+            return true;
+        });
+        console.log(okFine)
+        wordCloud(okFine);
     });
 });
 
-function drawScatter(data: Journal[]) {
-    const width = svgRef.value.clientWidth;
-    const height = svgRef.value.clientHeight;
-    const clipWidth = width - margin.left - margin.right;
-    const clipheight = height - margin.top - margin.bottom;
-    const svg = d3.select(svgRef.value).select(".main");
-
-    // 设置x和y的比例尺，x轴是标签
-    let xScale = d3
-        .scaleBand()
-        .domain(data.map((d) => d.name))
-        .range([0, clipWidth]);
-    let yScale = d3
-        .scaleLinear()
-        .domain([0, d3.max(data.map((d) => d.cites))])
-        .range([clipheight, 0]);
-
-    // 设置x轴和y轴
-    let xAxis = svg
-        .append("g")
-        .attr("class", "axis")
-        .attr("transform", "translate(0," + clipheight + ")")
-        .call(d3.axisBottom(xScale));
-    let yAxis = svg.append("g").attr("class", "axis").call(d3.axisLeft(yScale));
-
-    let padding = { left: 0, top: 0, right: 0, bottom: 0 };
-    let g = svg
-        .append("g")
-        .attr("transform", "translate(" + padding.left + "," + padding.top + ")");
-    // 绘制直方图
-    g.selectAll(".bar")
-        .data(data)
-        .enter()
-        .append("rect")
-        .attr("class", "bar")
-        .attr("x", (d: Journal) => xScale(d.name))
-        .attr("y", (d: Journal) => yScale(d.cites))
-        .attr("width", xScale.bandwidth() - 2)
-        .attr("height", (d: Journal) => clipheight - yScale(d.cites))
-        .attr("fill", "steelblue");
-    return () => {
-        svg.selectAll("*").remove();
-    };
-}
 </script>
-
-<style scoped>
-.s1 {
-    width: "50vw";
-    height: "100vh";
-}
-</style>

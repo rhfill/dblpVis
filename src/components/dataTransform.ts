@@ -48,3 +48,37 @@ export function transformInstitution(data: any[]): Institution[] {
   });
 }
 
+// ,author,ee,mdate,key,title,pages,year,volume,journal,number,url
+export type Article200 = {
+  index: number;
+  authors: string[];
+  ee: string[];
+  mdate: string;
+  key: string;
+  title: string;
+  pages: string;
+  year: number;
+  volume: string;
+  journal: string;
+  number: string;
+  url: string;
+};
+
+export function transformArticle200(data: any[]): Article200[] {
+  return data.map((d, i) => {
+    return {
+      index: parseInt(d["index"]),
+      authors: d["author"].slice(1, -1).split(","),
+      ee: d["ee"].slice(1, -1).split(","),
+      mdate: d["mdate"],
+      key: d["key"],
+      title: d["title"],
+      pages: d["pages"],
+      year: parseInt(d["year"]),
+      volume: d["volume"],
+      journal: d["journal"],
+      number: d["number"],
+      url: d["url"],
+    } as Article200;
+  });
+}

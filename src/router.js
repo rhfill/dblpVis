@@ -14,8 +14,7 @@ const router = createRouter({
   routes: [
     {
       path: "/",
-      name: "CollaborationGraph",
-      component: CollaborationGraph,
+      component: TextCloud,
     },
     {
       path: "/CollaborationGraph",
