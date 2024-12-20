@@ -26,16 +26,16 @@ const router = createRouter({
       name: "TextCloud",
       component: TextCloud,
     },
-    {
-      path: "/InfluenceChart",
-      name: "InfluenceChart",
-      component: InfluenceChart,
-    },
-    {
-      path: "/TrendChart",
-      name: "TrendChart",
-      component: TrendChart,
-    },
+    // {
+    //   path: "/InfluenceChart",
+    //   name: "InfluenceChart",
+    //   component: InfluenceChart,
+    // },
+    // {
+    //   path: "/TrendChart",
+    //   name: "TrendChart",
+    //   component: TrendChart,
+    // },
   ],
 });
 

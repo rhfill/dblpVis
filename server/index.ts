@@ -1,7 +1,8 @@
 // 引入 Koa 和 http 模块
 import Koa from 'koa';
 import Router from 'koa-router';
-import { Article200FromYear } from './util.js';
+import { Article200FromYear, CollaborationGraph } from './handler.js';
+import { debug } from './util.js';
 
 const app = new Koa();
 const router = new Router();
@@ -13,6 +14,15 @@ function init() {
         const data = await Article200FromYear(year)
         ctx.body = JSON.stringify(data);
     });
+    router.get('/CollaborationGraph', async (ctx) => {
+        const data = await CollaborationGraph()
+        ctx.body = JSON.stringify(data);
+    });
+    router.get('/debug', async (ctx) => {
+        const data = debug()
+        ctx.body = JSON.stringify(data);
+    });
+
 
     //CORS
     app.use(async (ctx, next) => {

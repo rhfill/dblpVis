@@ -1,11 +1,11 @@
-研究热点发现：使用热力图或词云来展示研究主题的频率和热度。
+<!-- 研究热点发现：使用热力图或词云来展示研究主题的频率和热度。 -->
 
 <template>
     <div>
         <div class="btn-group">
             <button v-for="y in years" :key="y" type="button" :onclick="() => updateWordCloud(y)">{{ y }}</button>
         </div>
-        <svg ref="svgRef" width="1400" height="700"></svg>
+        <svg id="svgRef" width="1200" height="700"></svg>
     </div>
 </template>
 
@@ -15,19 +15,19 @@ import * as d3 from "d3";
 import * as d3cloud from 'd3-cloud'
 
 const cloud = d3cloud.default;
-const svgRef = ref();
 const years = ref<number[]>([]);
 
 function wordCloud(data: { text: string, size: number }[]) {
-    const svg = d3.select(svgRef.value);
+    const svg = d3.select("#svgRef");
+    const g = svg.append("g");
 
     const zoom = d3.zoom()
         .scaleExtent([1, 8])
-        .on("zoom", function () {
-            console.log("zoom");
-            svg.attr("transform", d3.event.transform)
+        .on("zoom", function (event) {
+            // console.log("zoom", d);
+            g.attr("transform", event.transform)
         });
-    svg.call(zoom);
+        svg.call(zoom);
 
     const width = +svg.attr("width");
     const height = +svg.attr("height");
@@ -35,15 +35,14 @@ function wordCloud(data: { text: string, size: number }[]) {
     var layout = cloud().size([width, height])
         .words(data) // 数据绑定
         .padding(5) // 单词间距
-        .rotate(function () { return ~~(Math.random() * 2) * 30; }) // 旋转角度
+        .rotate(function () { return (Math.random() * 90) - 45; }) // 旋转角度
         .font("Arial")
         .fontSize(function (d) { return d.size; }) // 字体大小
         .on("end", draw);
     layout.start();
 
     function draw(words) {
-        var cloud = svg.append("g")
-            .attr("transform", "translate(" + width / 2 + "," + height / 2 + ")");
+        var cloud = g.attr("transform", "translate(" + width / 2 + "," + height / 2 + ")");
 
         cloud.selectAll("text")
             .data(words)
@@ -57,12 +56,10 @@ function wordCloud(data: { text: string, size: number }[]) {
             })
             .text(function (d) { return d.text; });
     }
-
-    return draw;
 }
 
 function cleanWordCloud() {
-    d3.select(svgRef.value).selectAll("*").remove();
+    d3.select("#svgRef").selectAll("*").remove();
 }
 
 function updateWordCloud(year: number) {
@@ -79,6 +76,13 @@ onMounted(() => {
         .then(res => res.json())
         .then(data => {
             years.value = data.sort().reverse();
+            const year = years.value[0];
+            fetch(`http://localhost:3000/Article200FromYear?year=${year}`)
+                .then(res => res.json())
+                .then(data => {
+                    cleanWordCloud();
+                    wordCloud(data);
+                });
         });
 });
 
