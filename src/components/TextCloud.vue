@@ -2,6 +2,9 @@
 
 <template>
     <div>
+        <div class="btn-group">
+            <button v-for="y in years" :key="y" type="button" :onclick="() => updateWordCloud(y)">{{ y }}</button>
+        </div>
         <svg ref="svgRef" width="1400" height="700"></svg>
     </div>
 </template>
@@ -10,13 +13,21 @@
 import { onMounted, ref } from "vue";
 import * as d3 from "d3";
 import * as d3cloud from 'd3-cloud'
-import { Article200, transformArticle200 } from "./dataTransform";
 
 const cloud = d3cloud.default;
 const svgRef = ref();
+const years = ref<number[]>([]);
 
 function wordCloud(data: { text: string, size: number }[]) {
     const svg = d3.select(svgRef.value);
+
+    const zoom = d3.zoom()
+        .scaleExtent([1, 8])
+        .on("zoom", function () {
+            console.log("zoom");
+            svg.attr("transform", d3.event.transform)
+        });
+    svg.call(zoom);
 
     const width = +svg.attr("width");
     const height = +svg.attr("height");
@@ -50,45 +61,45 @@ function wordCloud(data: { text: string, size: number }[]) {
     return draw;
 }
 
-function processData2Weight(data: Article200[]) {
-    const segmenterFr = new Intl.Segmenter('en', { granularity: 'word', localeMatcher: 'best fit' });
-    let weight = new Map<string, number>();
-    data.forEach((d) => {
-        const iterator = segmenterFr.segment(d.title);
-        for (let { segment } of iterator) {
-            segment = segment.toLowerCase()
-            if (segment.length < 2) {
-                continue;
-            }
-            if (weight.has(segment)) {
-                weight.set(segment, weight.get(segment) + 1);
-            } else {
-                weight.set(segment, 1);
-            }
-        }
-    });
-    return weight;
+function cleanWordCloud() {
+    d3.select(svgRef.value).selectAll("*").remove();
 }
 
-const getRidOf = [
-    "the", 'of', 'with', 'and', 'or', 'in'
-]
+function updateWordCloud(year: number) {
+    fetch(`http://localhost:3000/Article200FromYear?year=${year}`)
+        .then(res => res.json())
+        .then(data => {
+            cleanWordCloud();
+            wordCloud(data);
+        });
+}
 
 onMounted(() => {
-    d3.csv("Article200.csv").then((_data) => {
-        const data = transformArticle200(_data.slice(0, 1000));
-        const realData = processData2Weight(data);
-
-        const realCloudData = Array.from(realData).map(([text, size]) => ({ text, size }));
-        const okFine = realCloudData.filter(d => {
-            if (getRidOf.includes(d.text)) {
-                return false;
-            }
-            return true;
+    fetch(`http://localhost:3000/Article200FromYear`)
+        .then(res => res.json())
+        .then(data => {
+            years.value = data.sort().reverse();
         });
-        console.log(okFine)
-        wordCloud(okFine);
-    });
 });
 
 </script>
+
+
+<style>
+.btn-group {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    overflow-y: scroll;
+    overflow-x: hidden;
+}
+
+.btn-group::-webkit-scrollbar {
+    display: none;
+}
+
+.btn-group>button {
+    margin: 5px;
+    cursor: pointer;
+}
+</style>

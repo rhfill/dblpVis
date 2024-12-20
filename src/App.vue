@@ -4,7 +4,7 @@ import { RouterLink, RouterView } from "vue-router";
 
 <template>
   <nav class="RouterLink-container">
-    <RouterLink to="/">CollaborationGraph</RouterLink>
+    <RouterLink to="/CollaborationGraph">CollaborationGraph</RouterLink>
     <RouterLink to="/TextCloud">TextCloud</RouterLink>
     <RouterLink to="/InfluenceChart">InfluenceChart</RouterLink>
     <RouterLink to="/TrendChart">TrendChart</RouterLink>

@@ -12,6 +12,8 @@
   "dependencies": {
     "d3": "^7.9.0",
     "d3-cloud": "^1.2.7",
+    "koa": "^2.15.3",
+    "koa-router": "^13.0.1",
     "pinia": "^2.2.6",
     "typescript": "^5.7.2",
     "vue": "^3.5.13",

@@ -22,6 +22,16 @@ a:hover {
 a:active {
     color: #e5d41b;
 }
+button {
+    cursor: pointer;
+    background-color: #e5d41b;
+    color: #2f2f2f;
+    border: none;
+    border-radius: 0.5rem;
+    padding: 0.5rem 1rem;
+    font-size: 1rem;
+    font-weight: bold;
+}
 
 body, #app {
     height: 100vh;
@@ -52,7 +62,7 @@ body, #app {
     margin-bottom: 1rem;
 
     display: flex;
-    flex-direction: column;
+    flex-direction: row;
     align-items: center;
     justify-content: center;
     background-color: #555555;
