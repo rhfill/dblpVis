@@ -1,0 +1,17 @@
+{
+    "compilerOptions": {
+        "allowImportingTsExtensions": false,
+        "allowSyntheticDefaultImports": true,
+        "noEmit": false,
+        "baseUrl": ".",
+        // es2015
+        "target": "es2020",
+        "moduleResolution": "node",
+        "strict": false,
+        "paths": {
+            "@/*": [
+                "src/*"
+            ]
+        }
+    }
+}

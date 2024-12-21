@@ -1,0 +1,19 @@
+{
+  "name": "server",
+  "version": "1.0.0",
+  "main": "index.js",
+  "license": "MIT",
+  "type": "module",
+  "dependencies": {
+    "@types/d3": "^7.4.3",
+    "@types/koa-router": "^7.4.8",
+    "d3": "^7.9.0",
+    "koa": "^2.15.3",
+    "koa-router": "^13.0.1",
+    "typescript": "^5.7.2"
+  },
+  "scripts": {
+    "dev": "tsc && node index.js",
+    "start": "tsc && node index.js"
+  }
+}

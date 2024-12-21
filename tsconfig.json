@@ -3,10 +3,13 @@
         "allowImportingTsExtensions": true,
         "noEmit": true,
         "baseUrl": ".",
+        // es2015
+        "target": "es2020",
+        "moduleResolution": "node",
         "paths": {
             "@/*": [
                 "src/*"
             ]
-        },
+        }
     }
 }
