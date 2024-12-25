@@ -4,10 +4,12 @@ import TextCloud from "@/components/TextCloud.vue";
 import InfluenceChart from "@/components/InfluenceChart.vue";
 import TrendChart from "@/components/TrendChart.vue";
 
-{/* <RouterLink to="/">CollaborationGraph</RouterLink>
+{
+  /* <RouterLink to="/">CollaborationGraph</RouterLink>
 <RouterLink to="/TextCloud">TextCloud</RouterLink>
 <RouterLink to="/InfluenceChart">InfluenceChart</RouterLink>
-<RouterLink to="/TrendChart">TrendChart</RouterLink> */}
+<RouterLink to="/TrendChart">TrendChart</RouterLink> */
+}
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -26,18 +28,17 @@ const router = createRouter({
       name: "TextCloud",
       component: TextCloud,
     },
-    // {
-    //   path: "/InfluenceChart",
-    //   name: "InfluenceChart",
-    //   component: InfluenceChart,
-    // },
-    // {
-    //   path: "/TrendChart",
-    //   name: "TrendChart",
-    //   component: TrendChart,
-    // },
+    {
+      path: "/InfluenceChart",
+      name: "InfluenceChart",
+      component: InfluenceChart,
+    },
+    {
+      path: "/TrendChart",
+      name: "TrendChart",
+      component: TrendChart,
+    },
   ],
 });
-
 
 export default router;

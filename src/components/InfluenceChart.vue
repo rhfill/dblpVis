@@ -1,78 +1,118 @@
-<!-- 机构和作者影响力比较：使用柱状图或散点图来展示机构和作者的影响力（如论文数量、引用量等）。可以添加交互功能，点击某个点显示详细信息。 -->
-<template>
-    <div >
-        <svg ref="svgRef" :style="{ width: '50vw', height: '90vh' }">
-            <g class="force" :transform="`translate(${margin.left + 200}, ${margin.top + 300})`"></g>
-            <g class="main" :transform="`translate(${margin.left}, ${margin.top})`"></g>
-        </svg>
-    </div>
-</template>
-
-<script lang="ts" setup>
-import { onMounted, ref } from "vue";
+<script lang="ts">
+import { defineComponent, onMounted, ref } from "vue";
 import * as d3 from "d3";
-import { transformJournal, type Journal } from "@/components/dataTransform.ts";
+import { transformInstitution, Institution } from "../components/dataTransform";
 
-const svgRef = ref();
-const margin = { left: 30, right: 10, top: 10, bottom: 20 };
+export default defineComponent({
+  name: "InfluenceChart",
+  setup() {
+    const institutions = ref<Institution[]>([]); // 保存解析后的数据
 
-onMounted(() => {
-    d3.text("Journals - Top paper - CS.csv").then((d) => {
-        const data = transformJournal(d3.csvParse(d));
-        console.log(data);
-        drawScatter(data);
+    // 加载数据
+    onMounted(async () => {
+      const rawData = await d3.csv(
+        "/Institutions%20-%20Top%20paper%20-%20CS.csv",
+      );
+      institutions.value = transformInstitution(rawData); // 转换为 Institution 类型
+      drawChart(); // 数据加载后绘制图表
     });
-});
 
-function drawScatter(data: Journal[]) {
-    const width = svgRef.value.clientWidth;
-    const height = svgRef.value.clientHeight;
-    const clipWidth = width - margin.left - margin.right;
-    const clipheight = height - margin.top - margin.bottom;
-    const svg = d3.select(svgRef.value).select(".main");
+    // 图表绘制函数
+    const drawChart = () => {
+      const margin = { top: 50, right: 50, bottom: 20, left: 180 }; // 增大左侧边距
+      const width = window.innerWidth - margin.left - margin.right; // 自适应窗口宽度
+      const height = institutions.value.length * 35; // 增加每个机构的高度，间距更大
 
-    // 设置x和y的比例尺，x轴是标签
-    let xScale = d3
-        .scaleBand()
-        .domain(data.map((d) => d.name))
-        .range([0, clipWidth]);
-    let yScale = d3
+      // 创建 SVG
+      const svg = d3
+        .select("#influence-chart")
+        .append("svg")
+        .attr("width", width + margin.left + margin.right)
+        .attr("height", height + margin.top + margin.bottom)
+        .append("g")
+        .attr("transform", `translate(${margin.left},${margin.top})`);
+
+      // 按照原始顺序排列数据
+      const sortedData = institutions.value;
+
+      // 设置 x 轴的范围（Cites），将最大值设置为 260000
+      const x = d3
         .scaleLinear()
-        .domain([0, d3.max(data.map((d) => d.cites))])
-        .range([clipheight, 0]);
+        .domain([0, 260000]) // 设置最大值为 260000
+        .range([0, width]);
 
-    // 设置x轴和y轴
-    let xAxis = svg
-        .append("g")
-        .attr("class", "axis")
-        .attr("transform", "translate(0," + clipheight + ")")
-        .call(d3.axisBottom(xScale));
-    let yAxis = svg.append("g").attr("class", "axis").call(d3.axisLeft(yScale));
+      // 设置 y 轴的范围（每个机构都有一个位置）
+      const y = d3
+        .scaleBand()
+        .domain(sortedData.map((d) => d.name)) // 以机构名作为 y 轴的刻度
+        .range([0, height])
+        .padding(0.5); // 增大间距
 
-    let padding = { left: 0, top: 0, right: 0, bottom: 0 };
-    let g = svg
+      // 添加 x 轴
+      svg
         .append("g")
-        .attr("transform", "translate(" + padding.left + "," + padding.top + ")");
-    // 绘制直方图
-    g.selectAll(".bar")
-        .data(data)
-        .enter()
-        .append("rect")
-        .attr("class", "bar")
-        .attr("x", (d: Journal) => xScale(d.name))
-        .attr("y", (d: Journal) => yScale(d.cites))
-        .attr("width", xScale.bandwidth() - 2)
-        .attr("height", (d: Journal) => clipheight - yScale(d.cites))
-        .attr("fill", "steelblue");
-    return () => {
-        svg.selectAll("*").remove();
+        .attr("transform", `translate(0,0)`) // 顶部显示 x 轴
+        .call(d3.axisTop(x).ticks(20).tickSizeOuter(0)) // 设置刻度数量为 20，增加刻度数量来减小间距
+        .call((g) => g.select(".domain").remove()) // 移除 x 轴主轴线
+        .append("text") // 添加 x 轴标题
+        .attr("x", width / 2)
+        .attr("y", -30)
+        .attr("text-anchor", "middle")
+        .attr("font-size", "16px")
+        .attr("font-weight", "bold")
+        .text("Cites");
+
+      // 添加 y 轴
+      svg
+        .append("g")
+        .call(d3.axisLeft(y).tickSize(0)) // 移除 y 轴刻度线
+        .call(
+          (g) =>
+            g
+              .selectAll(".tick text") // 设置 y 轴刻度文本样式
+              .attr("font-size", "10px") // 修改字体大小
+              .attr("font-weight", "bold")
+              .style("white-space", "pre-line"), // 允许换行
+        );
+
+      // 绘制散点图（圆点）
+      svg
+        .selectAll("circle")
+        .data(sortedData)
+        .join("circle")
+        .attr("cx", (d) => x(d.cites)) // 每个点的横向位置根据引用量动态设置
+        .attr("cy", (d) => y(d.name)! + y.bandwidth() / 2) // 纵向位置为机构名所在的中心
+        .attr("r", 4) // 圆点的大小
+        .attr("fill", "steelblue")
+        .on("click", (event, d) => {
+          alert(
+            `机构: ${d.name}\n国家: ${d.country}\n引用量: ${d.cites}\n论文数量: ${d.webOfScienceDocuments}`,
+          );
+        });
     };
-}
+
+    return {};
+  },
+});
 </script>
 
+<template>
+  <div>
+    <div
+      id="influence-chart"
+      style="
+        overflow-y: auto;
+        height: 100vh;
+        width: 100vw;
+        background-color: #222;
+      "
+    ></div>
+  </div>
+</template>
+
 <style scoped>
-.s1 {
-    width: "50vw";
-    height: "100vh";
+#influence-chart {
+  margin: 0; /* 去掉外边距 */
+  padding: 0; /* 去掉内边距 */
 }
 </style>
