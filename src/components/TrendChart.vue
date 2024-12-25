@@ -133,7 +133,7 @@ export default defineComponent({
       style="
         width: 100%;
         padding: 10px;
-        background-color: #333;
+        background-color: inherit;
         color: white;
         display: flex;
         justify-content: space-between;
@@ -142,7 +142,7 @@ export default defineComponent({
       "
     >
       <div>
-        <label for="start-range" style="font-size: 14px; margin-right: 10px"
+        <label for="start-range" style="font-size: 14px; margin-right: 20px"
           >起始年份：</label
         >
         <input
@@ -157,7 +157,7 @@ export default defineComponent({
         <span style="font-size: 14px">{{ startYear }}年</span>
       </div>
       <div>
-        <label for="end-range" style="font-size: 14px; margin-right: 10px"
+        <label for="end-range" style="font-size: 14px; margin-right: 20px"
           >结束年份：</label
         >
         <input
@@ -184,5 +184,13 @@ export default defineComponent({
 <style scoped>
 .bar {
   transition: all 0.3s ease-in-out;
+}
+
+.RouterView-content {
+  background-color: #222;
+}
+
+*::-webkit-scrollbar {
+  display: none;
 }
 </style>

@@ -19,7 +19,7 @@ export default defineComponent({
 
     // 图表绘制函数
     const drawChart = () => {
-      const margin = { top: 50, right: 50, bottom: 20, left: 180 }; // 增大左侧边距
+      const margin = { top: 50, right: 50, bottom: 20, left: 500 }; // 增大左侧边距
       const width = window.innerWidth - margin.left - margin.right; // 自适应窗口宽度
       const height = institutions.value.length * 35; // 增加每个机构的高度，间距更大
 
@@ -70,7 +70,7 @@ export default defineComponent({
           (g) =>
             g
               .selectAll(".tick text") // 设置 y 轴刻度文本样式
-              .attr("font-size", "10px") // 修改字体大小
+              .attr("font-size", "14px") // 修改字体大小
               .attr("font-weight", "bold")
               .style("white-space", "pre-line"), // 允许换行
         );
@@ -82,7 +82,7 @@ export default defineComponent({
         .join("circle")
         .attr("cx", (d) => x(d.cites)) // 每个点的横向位置根据引用量动态设置
         .attr("cy", (d) => y(d.name)! + y.bandwidth() / 2) // 纵向位置为机构名所在的中心
-        .attr("r", 4) // 圆点的大小
+        .attr("r", 12) // 圆点的大小
         .attr("fill", "steelblue")
         .on("click", (event, d) => {
           alert(
@@ -98,21 +98,28 @@ export default defineComponent({
 
 <template>
   <div>
-    <div
-      id="influence-chart"
-      style="
+    <div id="influence-chart" style="
         overflow-y: auto;
         height: 100vh;
         width: 100vw;
         background-color: #222;
-      "
-    ></div>
+      "></div>
   </div>
 </template>
 
 <style scoped>
 #influence-chart {
-  margin: 0; /* 去掉外边距 */
-  padding: 0; /* 去掉内边距 */
+  margin: 0;
+  /* 去掉外边距 */
+  padding: 0;
+  /* 去掉内边距 */
+}
+
+.RouterView-content {
+  background-color: #222;
+}
+
+*::-webkit-scrollbar {
+  display: none;
 }
 </style>
