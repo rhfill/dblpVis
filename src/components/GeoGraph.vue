@@ -41,9 +41,22 @@ export default defineComponent({
       // Create SVG
       const svg = d3.select('#map')
         .append('svg')
-        .attr('viewBox', [0, 0, width.value, height.value]);
+        .attr('viewBox', [0, 0, width.value, height.value])
+        .attr('width', '100%')
+        .attr('height', '100%');
+      
+      const container = svg.append('g');
+      
+      const zoom = d3.zoom()
+        .extent([[0,0],[width.value, height.value]])
+        .scaleExtent([1,8])
+        .on('zoom', (event) => {
+          container.attr('transform', event.transform.toString());
+      });
+      
+      svg.call(zoom);
 
-      const defs = svg.append('defs');
+      const defs = container.append('defs');
       defs.append('path')
         .attr('id', 'outline')
         .attr('d', path(outline));
@@ -54,7 +67,7 @@ export default defineComponent({
         .attr('xlink:href', '#outline');
 
       // Create main group
-      const g = svg.append('g')
+      const g = container.append('g')
         .attr('clip-path', 'url(#clip)');
 
       // Draw map elements
@@ -72,12 +85,12 @@ export default defineComponent({
         .attr('fill', '#ddd');
 
       // Draw institutions
-      svg.append('g')
+      g.append('g')
         .selectAll('circle')
         .data(institutions)
         .join('circle')
         .attr('transform', (d: Institution) => `translate(${projection([d.Longitude, d.Latitude])})`)
-        .attr('r', 1.5)
+        .attr('r', 0.5)
         .append('title')
         .text((d: Institution) => d.name);
     };
