@@ -3,6 +3,8 @@ import CollaborationGraph from "@/components/CollaborationGraph.vue";
 import TextCloud from "@/components/TextCloud.vue";
 import InfluenceChart from "@/components/InfluenceChart.vue";
 import TrendChart from "@/components/TrendChart.vue";
+import GeoGraph from "@/components/GeoGraph.vue";
+import { geoOrthographic } from "d3";
 
 {
   /* <RouterLink to="/">CollaborationGraph</RouterLink>
@@ -38,6 +40,11 @@ const router = createRouter({
       name: "TrendChart",
       component: TrendChart,
     },
+    {
+      path: "/GeoGraph",
+      name: "GeoGraph",
+      component: GeoGraph,
+    }
   ],
 });
 
